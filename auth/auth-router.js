@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const jwt = require('jsonwebtoken');
-const secret = require('../config/secrets');
+// const secret = require('../config/secrets');
+const { jwtSecret } = require('../config/secrets');
 const bcrypt = require('bcryptjs');
 
 const Users = require('../users/users-model.js');
@@ -56,7 +57,7 @@ function signToken(user) {
 
   // extract the secret away so it can be required and used where needed
 
-  return jwt.sign(payload, secret.jwtSecret, options);
+  return jwt.sign(payload, jwtSecret, options);
 }
 
 module.exports = router;
