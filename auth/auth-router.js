@@ -1,4 +1,7 @@
 const router = require('express').Router();
+const jwt = require('jsonwebtoken');
+// const secret = require('../config/secrets');
+const { jwtSecret } = require('../config/secrets');
 const bcrypt = require('bcryptjs');
 
 const Users = require('../users/users-model.js');
@@ -25,8 +28,12 @@ router.post('/login', (req, res) => {
     .first()
     .then(user => {
       if (user && bcrypt.compareSync(password, user.password)) {
+        //create the token
+        const token = signToken(user);
+
+        // the server needs to return the token to the client
         res.status(200).json({
-          message: `Welcome ${user.username}!`,
+          message: `Welcome ${user.username}!, we have a token:${token}`
         });
       } else {
         res.status(401).json({ message: 'Invalid Credentials' });
@@ -36,5 +43,21 @@ router.post('/login', (req, res) => {
       res.status(500).json(error);
     });
 });
+
+function signToken(user) {
+  const payload = {
+    userID: user.id,
+    username: user.username
+    //add any other data we want to store in token payload
+  };
+
+  const options = {
+    expiresIn: '1d' //check documentation for other options available
+  };
+
+  // extract the secret away so it can be required and used where needed
+
+  return jwt.sign(payload, jwtSecret, options);
+}
 
 module.exports = router;
